@@ -26,11 +26,11 @@ const Layout = () => {
                 className={`flex items-center p-2 rounded-lg ${
                   isActive('/') 
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                    : 'hover:bg-sidebar-accent/50 text-sidebar-foreground'
+                    : 'hover:bg-sidebar-accent/50 text-white/90 hover:text-white'
                 }`}
               >
                 <Home className="h-5 w-5" />
-                <span className="ml-3 hidden md:inline-block font-medium">Dashboard</span>
+                <span className="ml-3 hidden md:inline-block font-medium text-sm">Dashboard</span>
               </Link>
             </li>
             <li>
@@ -39,11 +39,11 @@ const Layout = () => {
                 className={`flex items-center p-2 rounded-lg ${
                   isActive('/trends') 
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                    : 'hover:bg-sidebar-accent/50 text-sidebar-foreground'
+                    : 'hover:bg-sidebar-accent/50 text-white/90 hover:text-white'
                 }`}
               >
                 <TrendingUp className="h-5 w-5" />
-                <span className="ml-3 hidden md:inline-block font-medium">Trends</span>
+                <span className="ml-3 hidden md:inline-block font-medium text-sm">Trends</span>
               </Link>
             </li>
             <li>
@@ -52,11 +52,11 @@ const Layout = () => {
                 className={`flex items-center p-2 rounded-lg ${
                   isActive('/settings') 
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                    : 'hover:bg-sidebar-accent/50 text-sidebar-foreground'
+                    : 'hover:bg-sidebar-accent/50 text-white/90 hover:text-white'
                 }`}
               >
                 <Settings className="h-5 w-5" />
-                <span className="ml-3 hidden md:inline-block font-medium">Sensor Settings</span>
+                <span className="ml-3 hidden md:inline-block font-medium text-sm">Sensor Settings</span>
               </Link>
             </li>
             <li>
@@ -65,11 +65,11 @@ const Layout = () => {
                 className={`flex items-center p-2 rounded-lg ${
                   isActive('/devices') 
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                    : 'hover:bg-sidebar-accent/50 text-sidebar-foreground'
+                    : 'hover:bg-sidebar-accent/50 text-white/90 hover:text-white'
                 }`}
               >
                 <HardDrive className="h-5 w-5" />
-                <span className="ml-3 hidden md:inline-block font-medium">Devices</span>
+                <span className="ml-3 hidden md:inline-block font-medium text-sm">Devices</span>
               </Link>
             </li>
             <li>
@@ -78,11 +78,11 @@ const Layout = () => {
                 className={`flex items-center p-2 rounded-lg ${
                   isActive('/profile') 
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground' 
-                    : 'hover:bg-sidebar-accent/50 text-sidebar-foreground'
+                    : 'hover:bg-sidebar-accent/50 text-white/90 hover:text-white'
                 }`}
               >
                 <User className="h-5 w-5" />
-                <span className="ml-3 hidden md:inline-block font-medium">Profile</span>
+                <span className="ml-3 hidden md:inline-block font-medium text-sm">Profile</span>
               </Link>
             </li>
           </ul>
@@ -106,3 +106,4 @@ const Layout = () => {
 };
 
 export default Layout;
+
