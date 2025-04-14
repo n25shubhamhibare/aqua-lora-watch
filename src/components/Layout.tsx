@@ -30,7 +30,7 @@ const Layout = () => {
                 }`}
               >
                 <Home className="h-5 w-5" />
-                <span className="ml-3 hidden md:block">Dashboard</span>
+                <span className="ml-3 hidden md:inline-block font-medium">Dashboard</span>
               </Link>
             </li>
             <li>
@@ -43,7 +43,7 @@ const Layout = () => {
                 }`}
               >
                 <TrendingUp className="h-5 w-5" />
-                <span className="ml-3 hidden md:block">Trends</span>
+                <span className="ml-3 hidden md:inline-block font-medium">Trends</span>
               </Link>
             </li>
             <li>
@@ -56,7 +56,7 @@ const Layout = () => {
                 }`}
               >
                 <Settings className="h-5 w-5" />
-                <span className="ml-3 hidden md:block">Sensor Settings</span>
+                <span className="ml-3 hidden md:inline-block font-medium">Sensor Settings</span>
               </Link>
             </li>
             <li>
@@ -69,7 +69,7 @@ const Layout = () => {
                 }`}
               >
                 <HardDrive className="h-5 w-5" />
-                <span className="ml-3 hidden md:block">Devices</span>
+                <span className="ml-3 hidden md:inline-block font-medium">Devices</span>
               </Link>
             </li>
             <li>
@@ -82,7 +82,7 @@ const Layout = () => {
                 }`}
               >
                 <User className="h-5 w-5" />
-                <span className="ml-3 hidden md:block">Profile</span>
+                <span className="ml-3 hidden md:inline-block font-medium">Profile</span>
               </Link>
             </li>
           </ul>
