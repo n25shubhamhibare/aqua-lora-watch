@@ -30,7 +30,7 @@ const Layout = () => {
                 }`}
               >
                 <Home className="h-5 w-5" />
-                <span className="ml-3 hidden md:inline-block font-medium text-sm">Dashboard</span>
+                <span className="ml-3 hidden md:inline-block font-medium text-sm">Home</span>
               </Link>
             </li>
             <li>
@@ -56,7 +56,7 @@ const Layout = () => {
                 }`}
               >
                 <Settings className="h-5 w-5" />
-                <span className="ml-3 hidden md:inline-block font-medium text-sm">Sensor Settings</span>
+                <span className="ml-3 hidden md:inline-block font-medium text-sm">Settings</span>
               </Link>
             </li>
             <li>
@@ -106,4 +106,3 @@ const Layout = () => {
 };
 
 export default Layout;
-
