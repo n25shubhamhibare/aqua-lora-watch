@@ -1,282 +1,301 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { SystemStatus } from '../types/sensor';
-import { initialSystemStatus } from '../services/mockDataService';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { CheckCircle, MoreVertical, PlusCircle, RefreshCw, WifiOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { HardDrive, RefreshCcw, WifiOff, Wifi, Battery, SignalHigh } from 'lucide-react';
 
-interface Device {
-  id: string;
-  name: string;
-  type: 'gateway' | 'sensor-node';
-  location: string;
-  status: SystemStatus;
-  lastMaintenance: Date;
-  sensors: string[];
-}
-
-const mockDevices: Device[] = [
+// Mock data for devices
+const initialDevices = [
   {
-    id: 'gateway-001',
-    name: 'Main Gateway',
-    type: 'gateway',
-    location: 'Pump House',
-    status: initialSystemStatus,
-    lastMaintenance: new Date(2024, 2, 15),
-    sensors: ['ph', 'turbidity', 'tds', 'conductivity', 'oxygen']
+    id: 'device-001',
+    name: 'Main Water Tank Sensor',
+    type: 'pH & Temperature',
+    status: 'online',
+    battery: 87,
+    lastMaintenance: '2023-12-10',
+    firmwareVersion: '3.2.1',
+    location: 'Water Tank 1'
   },
   {
-    id: 'node-001',
-    name: 'Intake Node',
-    type: 'sensor-node',
-    location: 'Water Intake',
-    status: {
-      ...initialSystemStatus,
-      batteryLevel: 62,
-      signalStrength: 76
-    },
-    lastMaintenance: new Date(2024, 1, 10),
-    sensors: ['turbidity', 'tds']
+    id: 'device-002',
+    name: 'Outlet Turbidity Sensor',
+    type: 'Turbidity',
+    status: 'online',
+    battery: 92,
+    lastMaintenance: '2024-01-15',
+    firmwareVersion: '3.1.7',
+    location: 'Outlet Pipe'
   },
   {
-    id: 'node-002',
-    name: 'Output Node',
-    type: 'sensor-node',
-    location: 'Distribution Point',
-    status: {
-      ...initialSystemStatus,
-      batteryLevel: 89,
-      signalStrength: 92
-    },
-    lastMaintenance: new Date(2024, 2, 28),
-    sensors: ['ph', 'conductivity', 'oxygen']
+    id: 'device-003',
+    name: 'Oxygen Level Monitor',
+    type: 'Dissolved Oxygen',
+    status: 'offline',
+    battery: 23,
+    lastMaintenance: '2023-11-05',
+    firmwareVersion: '3.0.9',
+    location: 'Aerator Tank'
+  },
+  {
+    id: 'device-004',
+    name: 'Secondary Tank Sensor',
+    type: 'pH & Temperature',
+    status: 'maintenance',
+    battery: 65,
+    lastMaintenance: '2024-02-20',
+    firmwareVersion: '3.2.0',
+    location: 'Water Tank 2'
   }
 ];
 
 const DeviceManagementPage = () => {
-  const [devices, setDevices] = useState<Device[]>(mockDevices);
-  const [activeTab, setActiveTab] = useState<string>('all');
+  const [devices, setDevices] = useState(initialDevices);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isAddDeviceOpen, setIsAddDeviceOpen] = useState(false);
+  const [newDevice, setNewDevice] = useState({
+    name: '',
+    type: '',
+    location: ''
+  });
+  
   const { toast } = useToast();
   
-  const filteredDevices = activeTab === 'all' 
-    ? devices 
-    : activeTab === 'gateway'
-      ? devices.filter(d => d.type === 'gateway')
-      : devices.filter(d => d.type === 'sensor-node');
-      
-  const handleRefreshDevice = (deviceId: string) => {
-    toast({
-      title: "Refreshing device",
-      description: "Requesting latest status update from device..."
-    });
-    
-    // Simulate updating device status
-    setTimeout(() => {
-      setDevices(prev => 
-        prev.map(device => {
-          if (device.id === deviceId) {
-            // Randomize status values a bit
-            return {
-              ...device,
-              status: {
-                ...device.status,
-                batteryLevel: Math.min(100, device.status.batteryLevel + Math.floor(Math.random() * 5)),
-                signalStrength: Math.min(100, Math.max(60, device.status.signalStrength + (Math.random() > 0.5 ? 5 : -5))),
-                lastUpdate: new Date(),
-                isOnline: true
-              }
-            };
-          }
-          return device;
-        })
-      );
-      
+  const filteredDevices = devices.filter(device => 
+    device.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    device.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    device.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  
+  const handleAddDevice = () => {
+    // Validation
+    if (!newDevice.name || !newDevice.type || !newDevice.location) {
       toast({
-        title: "Device refreshed",
-        description: "Successfully updated device status",
+        title: "Error",
+        description: "All fields are required",
+        variant: "destructive",
       });
-    }, 2000);
+      return;
+    }
+    
+    // Add the new device
+    const device = {
+      id: `device-${(devices.length + 1).toString().padStart(3, '0')}`,
+      name: newDevice.name,
+      type: newDevice.type,
+      status: 'online',
+      battery: 100,
+      lastMaintenance: new Date().toISOString().split('T')[0],
+      firmwareVersion: '3.2.1',
+      location: newDevice.location
+    };
+    
+    setDevices([...devices, device]);
+    setNewDevice({ name: '', type: '', location: '' });
+    setIsAddDeviceOpen(false);
+    
+    toast({
+      title: "Device Added",
+      description: `${device.name} has been added successfully`,
+      variant: "default",
+    });
   };
   
-  const restartDevice = (deviceId: string) => {
-    const device = devices.find(d => d.id === deviceId);
-    if (!device) return;
-    
-    toast({
-      title: "Restarting device",
-      description: `Sending restart command to ${device.name}...`
-    });
-    
-    // Simulate device restart
-    setDevices(prev => 
-      prev.map(d => {
-        if (d.id === deviceId) {
-          return { ...d, status: { ...d.status, isOnline: false } };
-        }
-        return d;
-      })
+  const handleRebootDevice = (deviceId) => {
+    // Simulate rebooting a device
+    setDevices(prevDevices => 
+      prevDevices.map(device => 
+        device.id === deviceId 
+          ? { ...device, status: 'rebooting' } 
+          : device
+      )
     );
     
+    toast({
+      title: "Device Rebooting",
+      description: "The device is now rebooting. This may take a minute.",
+      variant: "default",
+    });
+    
+    // Simulate the device coming back online after rebooting
     setTimeout(() => {
-      setDevices(prev => 
-        prev.map(d => {
-          if (d.id === deviceId) {
-            return { 
-              ...d, 
-              status: { 
-                ...d.status, 
-                isOnline: true,
-                lastUpdate: new Date() 
-              } 
-            };
-          }
-          return d;
-        })
+      setDevices(prevDevices => 
+        prevDevices.map(device => 
+          device.id === deviceId 
+            ? { ...device, status: 'online' } 
+            : device
+        )
       );
       
       toast({
-        title: "Device restarted",
-        description: `${device.name} has been successfully restarted`,
+        title: "Reboot Complete",
+        description: "The device is now back online.",
+        variant: "default",
       });
     }, 3000);
   };
   
-  const formatMaintenanceDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    }).format(date);
+  const renderStatusBadge = (status) => {
+    switch (status) {
+      case 'online':
+        return <Badge className="bg-green-500">Online</Badge>;
+      case 'offline':
+        return <Badge variant="destructive">Offline</Badge>;
+      case 'maintenance':
+        return <Badge variant="outline" className="text-amber-500 border-amber-500">Maintenance</Badge>;
+      case 'rebooting':
+        return <Badge variant="outline" className="text-blue-500 border-blue-500">Rebooting</Badge>;
+      default:
+        return <Badge variant="outline">Unknown</Badge>;
+    }
   };
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Device Management</h1>
+        <h1 className="text-2xl font-bold">Device Management</h1>
+        <Dialog open={isAddDeviceOpen} onOpenChange={setIsAddDeviceOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Device
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Device</DialogTitle>
+              <DialogDescription>
+                Add a new sensor device to your monitoring system.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="device-name">Device Name</Label>
+                <Input 
+                  id="device-name" 
+                  value={newDevice.name} 
+                  onChange={(e) => setNewDevice({...newDevice, name: e.target.value})} 
+                  placeholder="e.g. Main Tank pH Sensor"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="device-type">Device Type</Label>
+                <Input 
+                  id="device-type" 
+                  value={newDevice.type} 
+                  onChange={(e) => setNewDevice({...newDevice, type: e.target.value})} 
+                  placeholder="e.g. pH & Temperature"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="device-location">Location</Label>
+                <Input 
+                  id="device-location" 
+                  value={newDevice.location} 
+                  onChange={(e) => setNewDevice({...newDevice, location: e.target.value})} 
+                  placeholder="e.g. Water Tank 1"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAddDeviceOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddDevice}>
+                Add Device
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Monitoring Devices</CardTitle>
-          <CardDescription>
-            Manage your water quality monitoring devices
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-3 mb-4">
-              <TabsTrigger value="all">All Devices</TabsTrigger>
-              <TabsTrigger value="gateway">Gateways</TabsTrigger>
-              <TabsTrigger value="sensor-node">Sensor Nodes</TabsTrigger>
-            </TabsList>
-            
-            <div className="grid grid-cols-1 gap-4">
-              {filteredDevices.map(device => (
-                <Card key={device.id} className="border shadow-sm">
-                  <CardContent className="p-0">
-                    <div className="p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-lg font-medium">{device.name}</h3>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <HardDrive className="h-4 w-4 text-gray-500" />
-                            <span className="text-sm text-gray-500">{device.type === 'gateway' ? 'Gateway' : 'Sensor Node'}</span>
-                          </div>
-                        </div>
-                        <Badge variant={device.status.isOnline ? "success" : "destructive"}>
-                          {device.status.isOnline ? 'Online' : 'Offline'}
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-4">
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-500">Location</h4>
-                            <p>{device.location}</p>
-                          </div>
-                          
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-500">Sensors</h4>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {device.sensors.map(sensorId => (
-                                <Badge key={sensorId} variant="outline">
-                                  {sensorId.charAt(0).toUpperCase() + sensorId.slice(1)}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-500">Last Maintenance</h4>
-                            <p>{formatMaintenanceDate(device.lastMaintenance)}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-gray-50 p-3 rounded-lg">
-                              <div className="flex items-center space-x-2">
-                                <Battery className={`h-5 w-5 ${
-                                  device.status.batteryLevel > 70 
-                                    ? 'text-green-500' 
-                                    : device.status.batteryLevel > 30 
-                                      ? 'text-amber-500' 
-                                      : 'text-red-500'
-                                }`} />
-                                <span className="text-sm font-medium">Battery</span>
-                              </div>
-                              <p className="mt-1 text-lg font-medium">{device.status.batteryLevel}%</p>
-                            </div>
-                            
-                            <div className="bg-gray-50 p-3 rounded-lg">
-                              <div className="flex items-center space-x-2">
-                                {device.status.signalStrength > 60 
-                                  ? <SignalHigh className="h-5 w-5 text-green-500" /> 
-                                  : <SignalHigh className="h-5 w-5 text-amber-500" />
-                                }
-                                <span className="text-sm font-medium">Signal</span>
-                              </div>
-                              <p className="mt-1 text-lg font-medium">{device.status.signalStrength}%</p>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-500">Last Update</h4>
-                            <p>{device.status.lastUpdate.toLocaleString()}</p>
-                          </div>
-                          
-                          <div className="flex items-center space-x-2 pt-2">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleRefreshDevice(device.id)}
-                            >
-                              <RefreshCcw className="h-4 w-4 mr-2" />
-                              Refresh
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => restartDevice(device.id)}
-                            >
-                              Restart
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </Tabs>
-        </CardContent>
-      </Card>
+      <div className="flex items-center space-x-2">
+        <Input
+          placeholder="Search devices..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {filteredDevices.map(device => (
+          <Card key={device.id}>
+            <CardHeader className="pb-2">
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle>{device.name}</CardTitle>
+                  <CardDescription>{device.type}</CardDescription>
+                </div>
+                {renderStatusBadge(device.status)}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Location:</span>
+                  <span>{device.location}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Battery:</span>
+                  <span>{device.battery}%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Last Maintenance:</span>
+                  <span>{device.lastMaintenance}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Firmware:</span>
+                  <span>v{device.firmwareVersion}</span>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleRebootDevice(device.id)}
+                disabled={device.status === 'rebooting'}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Reboot
+              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem>Edit Device</DropdownMenuItem>
+                  <DropdownMenuItem>Update Firmware</DropdownMenuItem>
+                  <DropdownMenuItem>View History</DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive">
+                    Remove Device
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+      
+      {filteredDevices.length === 0 && (
+        <div className="text-center py-10">
+          <WifiOff className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h3 className="mt-4 text-lg font-medium">No devices found</h3>
+          <p className="text-muted-foreground">
+            Try adjusting your search or add a new device.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
