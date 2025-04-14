@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,19 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Water quality status colors
+				status: {
+					good: '#10b981',
+					moderate: '#f59e0b',
+					poor: '#ef4444'
+				},
+				// Water-themed colors
+				water: {
+					light: '#e0f7fa',
+					medium: '#4fc3f7',
+					deep: '#0288d1',
+					dark: '#01579b'
 				}
 			},
 			borderRadius: {
@@ -84,11 +98,38 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'pulse-slow': {
+					'0%, 100%': {
+						opacity: 1
+					},
+					'50%': {
+						opacity: 0.5
+					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: 0
+					},
+					'100%': {
+						opacity: 1
+					}
+				},
+				'water-flow': {
+					'0%': {
+						transform: 'translateX(-100%)'
+					},
+					'100%': {
+						transform: 'translateX(100%)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'pulse-slow': 'pulse-slow 3s infinite ease-in-out',
+				'fade-in': 'fade-in 0.5s ease-out',
+				'water-flow': 'water-flow 10s infinite linear'
 			}
 		}
 	},
